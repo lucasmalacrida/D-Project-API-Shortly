@@ -35,10 +35,19 @@ export async function getUrl(req, res) {
     }
 }
 
-export async function accessUrlUrl(req, res) {
+export async function accessUrl(req, res) {
     const { shortUrl } = req.params;
     try {
-        res.sendStatus(200);
+        // Finding the Url
+        const urlData = await db.query(`SELECT * FROM urls WHERE "shortUrl" = $1;`, [shortUrl]);
+        if (urlData.rowCount === 0) { return res.sendStatus(404) }
+        const url = urlData.rows[0].url;
+        const id = urlData.rows[0].id;
+
+        // Count++
+        await db.query(`UPDATE urls SET "visitCount" = "visitCount" + 1 WHERE id = $1;`, [id]);
+
+        res.redirect(url);
     } catch (err) {
         res.status(500).send(err.message);
     }
