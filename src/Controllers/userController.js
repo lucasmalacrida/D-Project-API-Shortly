@@ -58,8 +58,16 @@ export async function getMyData(req, res) {
 
 export async function getRanking(req, res) {
     try {
-
-        res.status(200).send({token});
+        const ranking = await db.query(`
+            SELECT users.id AS id, users.name AS name, COUNT(users.id) AS "linksCount", SUM(urls."visitCount") AS "visitCount"
+            FROM urls
+            JOIN users ON users.id = urls."userId"
+            GROUP BY users.id
+            ORDER BY "visitCount" DESC
+            LIMIT 10
+            ;
+        `)
+        res.status(200).send(ranking.rows);
     } catch (err) {
         res.status(500).send(err.message);
     }
