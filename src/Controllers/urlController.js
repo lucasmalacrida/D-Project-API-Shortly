@@ -28,7 +28,7 @@ export async function getUrl(req, res) {
     try {
         const urlData = await db.query(`SELECT * FROM urls WHERE id = $1;`, [id]);
         if (urlData.rowCount === 0) { return res.sendStatus(404) }
-        const { id, shortUrl, url } = urlData.rows[0];
+        const { shortUrl, url } = urlData.rows[0];
         res.status(200).send({ id, shortUrl, url });
     } catch (err) {
         res.status(500).send(err.message);
