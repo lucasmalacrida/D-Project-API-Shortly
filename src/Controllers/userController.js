@@ -41,7 +41,7 @@ export async function signIn(req, res) {
             [userId, token]
         );
 
-        res.status(200).send({token});
+        res.status(200).send({ token });
     } catch (err) {
         res.status(500).send(err.message);
     }
@@ -49,8 +49,21 @@ export async function signIn(req, res) {
 
 export async function getMyData(req, res) {
     try {
+        const user = await db.query(`
+            SELECT users.id AS id, users.name AS name, SUM(urls."visitCount") AS "visitCount"
+            FROM urls
+            JOIN users ON users.id = urls."userId"
+            WHERE users.id = $1
+            GROUP BY users.id
+        ;`, [id]);
+        const urls = await db.query(`
+            SELECT id, "shortUrl", url, "visitCount"
+            FROM urls
+            WHERE "userId" = $1;
+        ;`, [id])
 
-        res.status(200).send({token});
+        const body = { ...user.rows[0], shortenedUrls: urls.rows }
+        res.status(200).send(body);
     } catch (err) {
         res.status(500).send(err.message);
     }
