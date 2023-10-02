@@ -37,7 +37,7 @@ export async function signIn(req, res) {
         const userId = user.rows[0].id;
         const token = uuid();
         await db.query(
-            `INSERT INTO sessions (userId, token) VALUES ($1,$2);`,
+            `INSERT INTO sessions ("userId", token) VALUES ($1,$2);`,
             [userId, token]
         );
 
